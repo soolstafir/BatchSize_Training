@@ -122,31 +122,62 @@ tf.summary.scalar('Accuracy', accuracy)
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
-merged_summary = tf.summary.merge_all()
+merged_summary_op = tf.summary.merge_all()
 
-# Start training
+## Start training
+#with tf.Session() as sess:
+#
+#    # Run the initializer
+#    sess.run(init)  
+#    # Write all summaries to TensorBoard
+#    summary_writer = tf.summary.FileWriter(logs_path, sess.graph)
+#    # Merge all summaries into a single op
+#    for step in range(1, num_steps+1):  
+#        batch_x, batch_y = mnist.train.next_batch(batch_size)        
+#        # Run optimization op (backprop)
+#        sess.run(train_op, feed_dict={X: batch_x, 
+#                                      Y_theo: batch_y, 
+#                                      keep_prob: 0.5})       
+#        if step % display_step == 0 or step == 1:            
+#            # Calculate batch loss and accuracy
+#            training_accuracy, loss, summary = sess.run(
+#                    [accuracy, loss_op, merged_summary], feed_dict={X: batch_x, 
+#                                                    Y_theo: batch_y, 
+#                                                    keep_prob: 1.0})
+#            summary_writer.add_summary(summary, step)          
+#            print("Step " + str(step) + ", Loss = " + "{:.3f}".format(loss) + \
+#                  ", Training Accuracy = " + "{:.3f}".format(training_accuracy))
+#
+#    print("Optimization Finished!")
+training_epochs = 25
+display_epoch = 1
+
 with tf.Session() as sess:
 
     # Run the initializer
-    sess.run(init)  
-    # Write all summaries to TensorBoard
-    summary_writer = tf.summary.FileWriter(logs_path, sess.graph)
-    # Merge all summaries into a single op
-    for step in range(1, num_steps+1):  
-        batch_x, batch_y = mnist.train.next_batch(batch_size)        
-        # Run optimization op (backprop)
-        sess.run(train_op, feed_dict={X: batch_x, 
-                                      Y_theo: batch_y, 
-                                      keep_prob: 0.5})       
-        if step % display_step == 0 or step == 1:            
-            # Calculate batch loss and accuracy
-            training_accuracy, loss, summary = sess.run(
-                    [accuracy, loss_op, merged_summary], feed_dict={X: batch_x, 
-                                                    Y_theo: batch_y, 
-                                                    keep_prob: 1.0})
-            summary_writer.add_summary(summary, step)          
-            print("Step " + str(step) + ", Loss = " + "{:.3f}".format(loss) + \
-                  ", Training Accuracy = " + "{:.3f}".format(training_accuracy))
+    sess.run(init)
+
+    # op to write logs to Tensorboard
+    summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
+
+    # Training cycle
+    for epoch in range(training_epochs):
+        avg_cost = 0.
+        total_batch = int(mnist.train.num_examples/batch_size)
+        # Loop over all batches
+        for i in range(total_batch):
+            batch = mnist.train.next_batch(batch_size)
+            # Run optimization op (backprop), cost op (to get loss value)
+            # and summary nodes
+            _, c, summary = sess.run([optimizer, loss_op, merged_summary_op],
+                                     feed_dict={X: batch[0], Y_theo: batch[1]})
+            # Write logs at every iteration
+            summary_writer.add_summary(summary, epoch * total_batch + i)
+            # Compute average loss
+            avg_cost += c / total_batch
+        # Display logs per epoch step
+        if (epoch+1) % display_epoch == 0:
+            print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(avg_cost))
 
     print("Optimization Finished!")
 
