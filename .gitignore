@@ -99,3 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+TensorBoard_Example_1.py
+TensorBoard_Example_2.py
+TensorFlow_Expert.py

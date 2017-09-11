@@ -16,7 +16,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("C:/tmp/batch_training/data/", one_hot=True)
 
 # Training Parameters
-learning_rate = 0.001
+learning_rate = 0.0001
 num_steps = 200
 batch_size = 32
 display_step = 10
@@ -105,6 +105,8 @@ with tf.name_scope('Model'):
 with tf.name_scope('Loss'):
     loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
             logits=logits, labels=Y_theo))
+    # Create a summary to monitor the loss 
+    #tf.summary.scalar('loss_op', loss_op)
 
 # Define optimizer
 with tf.name_scope('AdamOptimizer'):
@@ -115,10 +117,8 @@ with tf.name_scope('AdamOptimizer'):
 with tf.name_scope('Accuracy'):
     correct_pred = tf.equal(tf.argmax(Y_pract, 1), tf.argmax(Y_theo, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-
-# Create a summary to monitor loss and accuracy
-tf.summary.scalar('loss_op', loss_op)
-tf.summary.scalar('Accuracy', accuracy)
+    # Create a summary to monitor accuracy
+    #tf.summary.scalar('Accuracy', accuracy)
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
