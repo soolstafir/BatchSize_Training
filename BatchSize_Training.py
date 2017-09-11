@@ -147,7 +147,7 @@ with tf.Session() as sess:
             summary_writer.add_summary(summary, step)          
             print("Step " + str(step) + ", Loss = " + "{:.3f}".format(loss) + \
                   ", Training Accuracy = " + "{:.3f}".format(training_accuracy))
-
+    
     print("Optimization Finished!")
 
     # Calculate accuracy for 256 MNIST test images
