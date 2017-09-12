@@ -20,8 +20,8 @@ num_classes = 10 # MNIST total classes (0-9 digits)
 dropout = 0.75 # Dropout, probability to keep units
 
 # tf Graph input
-X = tf.placeholder(tf.float32, [None, num_input])
-Y = tf.placeholder(tf.float32, [None, num_classes])
+X = tf.placeholder(tf.float32, [None, num_input], name='InputData')
+Y = tf.placeholder(tf.float32, [None, num_classes], name='LabelData')
 keep_prob = tf.placeholder(tf.float32) # dropout (keep probability)
 
 
