@@ -49,11 +49,13 @@ def conv_net(x, weights, biases, dropout):
 
     # Convolution Layer
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
+    tf.summary.histogram('conv1', conv1)
     # Max Pooling (down-sampling)
     conv1 = maxpool2d(conv1, k=2)
 
     # Convolution Layer
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
+    tf.summary.histogram('conv2', conv2)
     # Max Pooling (down-sampling)
     conv2 = maxpool2d(conv2, k=2)
 
@@ -62,6 +64,7 @@ def conv_net(x, weights, biases, dropout):
     fc1 = tf.reshape(conv2, [-1, weights['wd1'].get_shape().as_list()[0]])
     fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
+    tf.summary.histogram('fc1', fc1)
     # Apply Dropout
     fc1 = tf.nn.dropout(fc1, dropout)
 
