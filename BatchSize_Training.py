@@ -104,7 +104,6 @@ with tf.name_scope('cost_function'):
 with tf.name_scope('accuracy'):
     correct_pred = tf.equal(tf.argmax(prediction, 1), tf.argmax(Y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-    tf.summary.scalar('correct_prediction', correct_pred)
     tf.summary.scalar('accuracy', accuracy)
 
 # Initialize the variables (i.e. assign their default value)
@@ -126,12 +125,12 @@ with tf.Session() as sess:
         sess.run(train_op, feed_dict={X: batch_x, Y: batch_y, keep_prob: 0.8})
         if step % display_step == 0 or step == 1:
             # Calculate batch loss and accuracy
-            loss, acc = sess.run([loss_op, accuracy], feed_dict={X: batch_x,
-                                                                 Y: batch_y,
-                                                                 keep_prob: 1.0})
+            loss, acc = sess.run([loss_op, accuracy],
+                                          feed_dict={X: batch_x, Y: batch_y, keep_prob: 1.0})
             print("Step " + str(step) + ", Minibatch Loss= " + \
                   "{:.4f}".format(loss) + ", Training Accuracy= " + \
                   "{:.3f}".format(acc))
+           # summary_writer.add_summary(summary, step)
 
     print("Optimization Finished!")
 
