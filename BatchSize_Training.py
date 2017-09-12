@@ -112,7 +112,6 @@ with tf.name_scope('accuracy'):
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
-merged_summary = tf.summary.merge_all()
 
 # Start training
 with tf.Session() as sess:
@@ -121,7 +120,8 @@ with tf.Session() as sess:
     sess.run(init)
     
     #Create a log writer
-    summary_writer = tf.summary.FileWriter(logdir, sess.graph)
+    merged_summary = tf.summary.merge_all()
+    summary_writer = tf.summary.FileWriter(logdir, graph=tf.get_default_graph())
 
     for step in range(1, num_steps+1):
         batch_x, batch_y = mnist.train.next_batch(batch_size)
