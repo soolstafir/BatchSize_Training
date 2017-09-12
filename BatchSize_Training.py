@@ -9,9 +9,10 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("C:/tmp/batch_training/data/", one_hot=True)
 
 # Training Parameters
+logdir = 'C:/tmp/batch_training/logs'
 learning_rate = 0.001
-num_steps = 200
-batch_size = 64
+num_steps = 100
+batch_size = 16
 display_step = 10
 
 # Network Parameters
@@ -22,7 +23,7 @@ dropout = 0.75 # Dropout, probability to keep units
 # tf Graph input
 X = tf.placeholder(tf.float32, [None, num_input], name='InputData')
 Y = tf.placeholder(tf.float32, [None, num_classes], name='LabelData')
-keep_prob = tf.placeholder(tf.float32) # dropout (keep probability)
+keep_prob = tf.placeholder(tf.float32, name='keep_prob') # dropout (keep probability)
 
 
 # Create some wrappers for simplicity
@@ -71,20 +72,20 @@ def conv_net(x, weights, biases, dropout):
 # Store layers weight & bias
 weights = {
     # 5x5 conv, 1 input, 32 outputs
-    'wc1': tf.Variable(tf.random_normal([5, 5, 1, 32])),
+    'wc1': tf.Variable(tf.random_normal([5, 5, 1, 32]), name='wc1'),
     # 5x5 conv, 32 inputs, 64 outputs
-    'wc2': tf.Variable(tf.random_normal([5, 5, 32, 64])),
+    'wc2': tf.Variable(tf.random_normal([5, 5, 32, 64]), name='wc2'),
     # fully connected, 7*7*64 inputs, 1024 outputs
-    'wd1': tf.Variable(tf.random_normal([7*7*64, 1024])),
+    'wd1': tf.Variable(tf.random_normal([7*7*64, 1024]), name='wc3'),
     # 1024 inputs, 10 outputs (class prediction)
-    'out': tf.Variable(tf.random_normal([1024, num_classes]))
+    'out': tf.Variable(tf.random_normal([1024, num_classes]), name='out_weight')
 }
 
 biases = {
-    'bc1': tf.Variable(tf.random_normal([32])),
-    'bc2': tf.Variable(tf.random_normal([64])),
-    'bd1': tf.Variable(tf.random_normal([1024])),
-    'out': tf.Variable(tf.random_normal([num_classes]))
+    'bc1': tf.Variable(tf.random_normal([32]), name='bc1'),
+    'bc2': tf.Variable(tf.random_normal([64]), name='bc2'),
+    'bd1': tf.Variable(tf.random_normal([1024]), name='bd1'),
+    'out': tf.Variable(tf.random_normal([num_classes]), name='out_bias')
 }
 
 # Construct model
@@ -92,15 +93,19 @@ logits = conv_net(X, weights, biases, keep_prob)
 prediction = tf.nn.softmax(logits)
 
 # Define loss and optimizer
-loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
-    logits=logits, labels=Y))
-optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
-train_op = optimizer.minimize(loss_op)
-
+with tf.name_scope('cost_function'):
+    loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
+            logits=logits, labels=Y))
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+    train_op = optimizer.minimize(loss_op)
+    tf.summary.scalar('loss', loss_op)
 
 # Evaluate model
-correct_pred = tf.equal(tf.argmax(prediction, 1), tf.argmax(Y, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+with tf.name_scope('accuracy'):
+    correct_pred = tf.equal(tf.argmax(prediction, 1), tf.argmax(Y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+    tf.summary.scalar('correct_prediction', correct_pred)
+    tf.summary.scalar('accuracy', accuracy)
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
@@ -110,6 +115,10 @@ with tf.Session() as sess:
 
     # Run the initializer
     sess.run(init)
+    
+    #Create a log writer
+    summary_writer = tf.summary.FileWriter(logdir, sess.graph)
+    merged_summary = tf.summary.merge_all()
 
     for step in range(1, num_steps+1):
         batch_x, batch_y = mnist.train.next_batch(batch_size)
