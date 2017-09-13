@@ -12,7 +12,6 @@ mnist = input_data.read_data_sets("C:/tmp/batch_training/data/", one_hot=True)
 logdir = 'C:/tmp/batch_training/logs'
 learning_rate = 0.001
 num_steps = 100
-batch_size = 16
 display_step = 10
 
 # Network Parameters
@@ -112,6 +111,7 @@ with tf.name_scope('accuracy'):
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
+batch_size = [16, 32, 64]
 
 # Start training
 with tf.Session() as sess:
@@ -122,24 +122,29 @@ with tf.Session() as sess:
     #Create a log writer
     merged_summary = tf.summary.merge_all()
     summary_writer = tf.summary.FileWriter(logdir, graph=tf.get_default_graph())
+    
+    for j in batch_size:
+        
+        print("\n Batch_size = {0} \n".format(j))
+        
+        for step in range(1, num_steps+1):
+            batch_x, batch_y = mnist.train.next_batch(j)
+            # Run optimization op (backprop)
+            sess.run(train_op, feed_dict={X: batch_x, Y: batch_y, keep_prob: 0.8})
+            if step % display_step == 0 or step == 1:
+                # Calculate batch loss and accuracy
+                loss, acc = sess.run([loss_op, accuracy],
+                                              feed_dict={X: batch_x, Y: batch_y, keep_prob: 1.0})
+                print("Step " + str(step) + ", Minibatch Loss= " + \
+                      "{:.4f}".format(loss) + ", Training Accuracy= " + \
+                      "{:.3f}".format(acc))
+                # summary_writer.add_summary(summary, step)
+            acc = 0
+        
+        print("Optimization Finished!")
 
-    for step in range(1, num_steps+1):
-        batch_x, batch_y = mnist.train.next_batch(batch_size)
-        # Run optimization op (backprop)
-        sess.run(train_op, feed_dict={X: batch_x, Y: batch_y, keep_prob: 0.8})
-        if step % display_step == 0 or step == 1:
-            # Calculate batch loss and accuracy
-            loss, acc = sess.run([loss_op, accuracy],
-                                          feed_dict={X: batch_x, Y: batch_y, keep_prob: 1.0})
-            print("Step " + str(step) + ", Minibatch Loss= " + \
-                  "{:.4f}".format(loss) + ", Training Accuracy= " + \
-                  "{:.3f}".format(acc))
-           # summary_writer.add_summary(summary, step)
-
-    print("Optimization Finished!")
-
-    # Calculate accuracy for 256 MNIST test images
-    print("Testing Accuracy:", \
-        sess.run(accuracy, feed_dict={X: mnist.test.images[:256],
-                                      Y: mnist.test.labels[:256],
-                                      keep_prob: 1.0}))
+        # Calculate accuracy for 256 MNIST test images
+        print("Testing Accuracy:", \
+              sess.run(accuracy, feed_dict={X: mnist.test.images[:256],
+                                            Y: mnist.test.labels[:256],
+                                            keep_prob: 1.0}))
