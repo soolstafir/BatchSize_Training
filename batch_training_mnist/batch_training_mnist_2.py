@@ -117,9 +117,9 @@ def mnist_model(batch_size, use_two_fc, use_two_conv, hparam):
   embedding_config.sprite.single_image_dim.extend([28, 28])
   tf.contrib.tensorboard.plugins.projector.visualize_embeddings(writer, config)
   
-  for i in range(1, 101):
+  for i in range(1, 10001):
     batch = mnist.train.next_batch(batch_size)
-    if i % 5 == 0:
+    if i % 10 == 0:
       [train_accuracy, s] = sess.run([accuracy, summ], feed_dict={x: batch[0],
                                                                   y: batch[1]})
       print("Step " + str(i) + ", Training Accuracy= " + "{:.3f}".format(train_accuracy))
@@ -137,10 +137,10 @@ def make_hparam_string(batch_size, use_two_fc, use_two_conv):
 
 def main():
   # You can try adding some more learning rates
-  for batch_size in [16, 32]:
+  for batch_size in [50, 128, 256, 1024]:
 
     # Include "False" as a value to try different model architectures
-    for use_two_fc in [False]:
+    for use_two_fc in [True]:
       for use_two_conv in [True]:
         # Construct a hyperparameter string for each one (example: "lr_1E-3,fc=2,conv=2")
         hparam = make_hparam_string(batch_size, use_two_fc, use_two_conv)
