@@ -8,11 +8,12 @@ import sys
 
 LOGDIR = "C:/tmp/batch_training_3/data_set_"
 
+
 def get_data_set(name="train", cifar=10):
 
     x = None
     y = None
-    l = None
+    label_name = None
 
     maybe_download_and_extract()
 
@@ -21,7 +22,7 @@ def get_data_set(name="train", cifar=10):
     f = open(LOGDIR+folder_name+'/batches.meta', 'rb')
     datadict = pickle.load(f, encoding='latin1')
     f.close()
-    l = datadict['label_names']
+    label_name = datadict['label_names']
 
     if name is "train":
         for i in range(5):
@@ -65,7 +66,7 @@ def get_data_set(name="train", cifar=10):
 
         return labels_one_hot
 
-    return x, dense_to_one_hot(y), l
+    return x, dense_to_one_hot(y), label_name
 
 
 def _print_download_progress(count, block_size, total_size):
@@ -86,28 +87,36 @@ def maybe_download_and_extract():
         filename = url.split('/')[-1]
         file_path = os.path.join(main_directory, filename)
         zip_cifar_10 = file_path
-        file_path, _ = urlretrieve(url=url, filename=file_path, reporthook=_print_download_progress)
+        file_path, _ = urlretrieve(url=url,
+                                   filename=file_path,
+                                   reporthook=_print_download_progress)
 
         print()
         print("Download finished. Extracting files.")
         if file_path.endswith(".zip"):
-            zipfile.ZipFile(file=file_path, mode="r").extractall(main_directory)
+            zipfile.ZipFile(file=file_path, mode="r").extractall(
+                                                            main_directory)
         elif file_path.endswith((".tar.gz", ".tgz")):
-            tarfile.open(name=file_path, mode="r:gz").extractall(main_directory)
+            tarfile.open(name=file_path, mode="r:gz").extractall(
+                                                            main_directory)
         print("Done.")
 
         url = "http://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz"
         filename = url.split('/')[-1]
         file_path = os.path.join(main_directory, filename)
         zip_cifar_100 = file_path
-        file_path, _ = urlretrieve(url=url, filename=file_path, reporthook=_print_download_progress)
+        file_path, _ = urlretrieve(url=url,
+                                   filename=file_path,
+                                   reporthook=_print_download_progress)
 
         print()
         print("Download finished. Extracting files.")
         if file_path.endswith(".zip"):
-            zipfile.ZipFile(file=file_path, mode="r").extractall(main_directory)
+            zipfile.ZipFile(file=file_path, mode="r").extractall(
+                                                            main_directory)
         elif file_path.endswith((".tar.gz", ".tgz")):
-            tarfile.open(name=file_path, mode="r:gz").extractall(main_directory)
+            tarfile.open(name=file_path, mode="r:gz").extractall(
+                                                            main_directory)
         print("Done.")
 
         os.rename(main_directory+"./cifar-10-batches-py", cifar_10_directory)
