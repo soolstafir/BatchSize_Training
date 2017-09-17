@@ -20,9 +20,11 @@ mnist = tf.contrib.learn.datasets.mnist.read_data_sets(
 
 # Get a sprite and labels file for the embedding projector
 if not (os.path.isfile(LABELS) and os.path.isfile(SPRITES)):
-    print("Necessary data files were not found. Run this command from inside
-          "the repository provided at https://github.com/dandelionmane
-          "/tf-dev-summit-tensorboard-tutorial.")
+    print("Necessary data files were not found")
+    """
+    Run this command from inside the repository provided at
+    https://github.com/dandelionmane/tf-dev-summit-tensorboard-tutorial.
+    """
     exit(1)
 
 
@@ -133,8 +135,8 @@ def mnist_model(batch_size, use_two_fc, use_two_conv, hparam):
     for i in range(1, 10001):
         batch = mnist.train.next_batch(batch_size)
         if i % 10 == 0:
-            [train_accuracy, s] = sess.run([accuracy, summ],
-            feed_dict={x: batch[0], y: batch[1]})
+            [train_accuracy, s] = sess.run(
+                    [accuracy, summ], feed_dict={x: batch[0], y: batch[1]})
             print("Step " + str(i) + ", Training Accuracy = " +
                   "{:.3f}".format(train_accuracy))
             writer.add_summary(s, i)
@@ -146,14 +148,14 @@ def mnist_model(batch_size, use_two_fc, use_two_conv, hparam):
 
 
 def make_hparam_string(batch_size, use_two_fc, use_two_conv):
-    conv_param = "conv=2" if use_two_conv else "conv=1"
-    fc_param = "fc=2" if use_two_fc else "fc=1"
-    return "batch_size = {0}, {1}, {2}".format(batch_size, conv_param, fc_param)
+    conv_par = "conv=2" if use_two_conv else "conv=1"
+    fc_par = "fc=2" if use_two_fc else "fc=1"
+    return "batch_size = {0}, {1}, {2}".format(batch_size, conv_par, fc_par)
 
 
 def main():
     # You can try adding some more learning rates
-    for batch_size in [50, 128, 256, 1024]:
+    for batch_size in [50, 100, 128, 256, 1024]:
         # Include "False" as a value to try different model architectures
         for use_two_fc in [True]:
             for use_two_conv in [True]:
