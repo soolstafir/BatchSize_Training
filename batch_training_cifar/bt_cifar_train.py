@@ -3,8 +3,8 @@ import tensorflow as tf
 from sklearn.metrics import confusion_matrix
 from time import time
 
-from data import get_data_set
-from model import model
+from bt_cifar_data import get_data_set
+from bt_cifar_model import model
 
 
 train_x, train_y, train_l = get_data_set(cifar=10)
@@ -14,9 +14,9 @@ x, y, output, global_step, y_pred_cls = model()
 
 _IMG_SIZE = 32
 _NUM_CHANNELS = 3
-_BATCH_SIZE = 32
+_BATCH_SIZE = 50
 _CLASS_SIZE = 10
-_ITERATION = 10000
+_ITERATION = 5000
 _SAVE_PATH = "C:/tmp/batch_training_3"
 
 
